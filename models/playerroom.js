@@ -44,7 +44,17 @@ class PlayerRoom extends Model {}
           })
           .then(room => {
             if (room.current_player >= 6) {
-              throw('The selected room is full, try find another or make a new one')
+              throw('The selected room is full, find another or make a new one')
+            } else {
+              room.current_player++;
+              return models.Room
+                .update({
+                  current_player: room.current_player
+                }, {
+                  where: {
+                    RoomId: room.id
+                  }
+                })
             }
           })
           .catch(err => {
