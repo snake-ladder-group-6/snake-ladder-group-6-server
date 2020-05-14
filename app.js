@@ -14,8 +14,12 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(router)
 
-io.on('connection', (socket)=> {
-  console.log('Connected');
+io.on('connect', (socket)=> {
+  console.log('a new player connected');
+
+  socket.on('disconnected', () => {
+    console.log('a player just leave the game');
+  })
 
   socket.on('register', payload => {
     const { username, password } = payload;
@@ -106,7 +110,28 @@ io.on('connection', (socket)=> {
   })
 
   socket.on('winner', payload => {
+    const { id, username } = payload;
 
+    Player
+      .findOne({
+        where: {
+          username
+        }
+      })
+      .then(player => {
+        player.win_record++;
+        return Player
+          .update({
+            win_record: player.win_record
+          }, {
+            where: {
+              id
+            }
+          })
+      })
+      .catch((err) => {
+        io.to(player.id).emit('error', err.msg);
+      });
   })
 
 })

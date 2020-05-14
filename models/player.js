@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Player.associate = function(models) {
-    Player.belongsToMany(models.Room({ through: models.PlayerRoom }))
+    Player.belongsToMany(models.Room, { through: models.PlayerRoom })
   };
   return Player;
 };

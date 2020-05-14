@@ -1,5 +1,5 @@
 let {Player, Room, PlayerRoom} = require('../models/index')
-let { compareHash } = require('../helpers/bycrypt')
+let { compareHash } = require('../helpers/bcrypt')
 let { generateToken } = require('../helpers/jwt')
 
 class PlayerController {

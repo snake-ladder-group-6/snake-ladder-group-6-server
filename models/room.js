@@ -37,7 +37,7 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
   Room.associate = function(models) {
-    Room.belongsToMany(models.Player({ through: models.PlayerRoom }))
+    Room.belongsToMany(models.Player, { through: models.PlayerRoom })
   };
   return Room;
 };
