@@ -68,15 +68,31 @@ io.on('connection', (socket)=> {
   })
 
   socket.on('add-room', payload => {
-    console.log(payload);
+    Rooms.create({
+      name: payload.roomName
+    })
+      .then(room => {
+        socket.join(room.id, (err) => {
+          if(err) {
+            console.log(err)
+          } else {
+            io.emit('roomCreated', room)
+          }
+        })
+      })
   })
 
   socket.on('join-room', token => {
-    console.log(token);
+    socket.join(payload.id, () => {
+      io.to(payload.id).emit('someoneJoined', payload)
+    })
   })
 
   socket.on('showAllRoom', () => {
-
+    Rooms.findAll()
+    .then(result => {
+      socket.emit('rooms', result)
+    })
   })
 
   socket.on('sendDiceNum', (diceNumber, token) => {
