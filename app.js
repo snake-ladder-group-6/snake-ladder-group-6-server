@@ -14,10 +14,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(router)
 
-io.on('connect', (socket)=> {
+io.on('connection', (socket)=> {
   console.log('a new player connected');
 
-  socket.on('disconnected', () => {
+  socket.on('disconnect', () => {
     console.log('a player just leave the game');
   })
 
@@ -133,7 +133,6 @@ io.on('connect', (socket)=> {
         io.to(player.id).emit('error', err.msg);
       });
   })
-
 })
 
 server.listen(port, ()=> {
