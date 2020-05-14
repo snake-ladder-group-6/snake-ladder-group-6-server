@@ -5,33 +5,19 @@ let {check_cord} = require('../helpers/checkPos')
 class RoomController {
 
   static allRoom (req, res, next) {
-    UserRoom.findAll({
-      include: [Player, Room],
-
-    })
+    Room.findAll()
       .then((result) => {
-        if(result) {
-          if(result.length == 5) {
-            Room.update({
-              status: true,
-              where: {  
-                id: req.params.RoomId
-              }
-            })
-          }
-          // res.status(200).json({
-          //   result
-          // })
-          // if(result) {
-          // }
-        }
+        res.status(200).json({
+          result
+        })
       }).catch((err) => {
-        console.log(err)
+        res.status(500).json({
+          err
+        })
       });
-  
   }
 
-  static create (req, res, next) {
+  static create (req, res, next) {  // need req.body.name
     let data = {
       name: req.body.name
     }
@@ -47,7 +33,7 @@ class RoomController {
       });
   }
 
-  static delete (req, res, next) {
+  static delete (req, res, next) { // need params RoomId
     Room.destroy({
       where: {
         id: req.params.RoomId
@@ -63,7 +49,7 @@ class RoomController {
         })
       });
   }
-  static roomInfo (req, res, next) {
+  static roomInfo (req, res, next) { // need params RoomId
     UserRoom.findAll({
       include: [Player, Room],
       where: {  
@@ -71,24 +57,13 @@ class RoomController {
       }
     })
       .then((result) => {
-        if(result) {
-          if(result.length == 5) {
-            Room.update({
-              status: true,
-              where: {  
-                id: req.params.RoomId
-              }
-            })
-          }
-          // res.status(200).json({
-          //   result
-          // })
-          // if(result) {
-
-          // }
-        }
+        res.status(200).json({
+          result
+        })
       }).catch((err) => {
-        console.log(err)
+        res.status(500).json({
+          err
+        })
       });
   }
 
