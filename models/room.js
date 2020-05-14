@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
 
   const { Model } = sequelize.Sequelize;
 
-  class Room extends Mdeol {}
+  class Room extends Model {}
 
   Room.init({
     name: {

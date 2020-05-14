@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
   const { Model } = sequelize.Sequelize;
 
   class Player extends Model {}
+  
   Player.init({
     username: {
       type: DataTypes.STRING,
