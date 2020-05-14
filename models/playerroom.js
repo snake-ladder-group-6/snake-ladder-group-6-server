@@ -31,6 +31,26 @@ class PlayerRoom extends Model {}
     modelname: 'PlayerRoom',
     defaultScope: {
       exclude: ['createdAt', 'updatedAt']
+    },
+    hooks: {
+      beforeCreate(playerRoom) {
+        const { models } = sequelize;
+
+        return models.Room
+          .findOne({
+            where: {
+              id: playerRoom.RoomId
+            }
+          })
+          .then(room => {
+            if (room.current_player >= 6) {
+              throw('The selected room is full, try find another or make a new one')
+            }
+          })
+          .catch(err => {
+            throw(err);
+          })
+      }
     }
   });
 
