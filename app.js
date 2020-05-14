@@ -25,7 +25,7 @@ io.on('connection', (socket)=> {
     const { username, password } = payload;
 
     Player
-      .craete({
+      .create({
         username,
         password
       })
