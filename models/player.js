@@ -1,4 +1,6 @@
 'use strict';
+const { hashPassword } = require('../helpers/bcrypt.js');
+
 module.exports = (sequelize, DataTypes) => {
 
   const { Model } = sequelize.Sequelize;
@@ -69,8 +71,14 @@ module.exports = (sequelize, DataTypes) => {
     modelName: 'Player',
     defaultScope: {
       exclude: ['createdAt', 'updatedAt']
+    },
+    hooks: {
+      beforeCreate(player) {
+        player.password = hashPassword(player.password);
+      }
     }
   });
+
   Player.associate = function(models) {
     Player.belongsToMany(models.Room({ through: models.PlayerRoom }))
   };
