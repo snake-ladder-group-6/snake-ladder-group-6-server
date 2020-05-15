@@ -42,37 +42,41 @@ io.on('connection', (socket) => {
  
   socket.on('login', payload => {
     const { username, password } = payload;
-
-    Player
-      .findOne({
-        where: {
-          username
-        }
-      })
-      .then(player => {
-        if (player) {
-          let compare = compareHash(password, player.password);
-          if(compare) {
-            let access_token = generateToken({
-              id: player.id,
-              username: player.username
-            })
-            let payload = {
-              access_token,
-              username
+    if(users.length >= 4) {
+      socket.emit('token', null)
+    } else {
+      Player
+        .findOne({
+          where: {
+            username
+          }
+        })
+        .then(player => {
+          if (player) {
+            let compare = compareHash(password, player.password);
+            if(compare) {
+              let access_token = generateToken({
+                id: player.id,
+                username: player.username
+              })
+              let payload = {
+                access_token,
+                username
+              }
+              users.push(username)
+              io.emit('token', users); 
+            } else {
+              console.log('invalid email/password');
             }
-            users.push(username)
-            io.emit('token', users); 
           } else {
             console.log('invalid email/password');
           }
-        } else {
-          console.log('invalid email/password');
-        }
-      })
-      .catch(err => {
-        console.log(err);
-      })
+        })
+        .catch(err => {
+          console.log(err);
+        })
+    }
+
   })
 
   socket.on('add-room', payload => {
@@ -175,34 +179,42 @@ io.on('connection', (socket) => {
     })
   })
 
-  socket.on('sendDiceNum', (diceNumber, token) => {
-    let decode = verifyToken(token);
-    const { id } = decode;
-    console.log(diceNumber, id);
-    let newPosition;
-    Player
-      .findByPk(id)
-      .then(player => {
-        let position = player.coordinate + diceNumber;
+  socket.on('start-game', () => {
+    io.emit('gameStarted')
+  })
 
-        newPosition = check_cord(position);
-        socket.emit('newPosition', newPosition);
-        return Player
-          .update({
-            coordinate: newPosition.newPos
-          }, {
-            where: {
-              id
-            },
-            returning: true
-          })
-          .then(player => {
-            console.log(player);
-          })
-          .catch(err => {
-            socket.emit('error', err.msg)
-          })
-      })
+  socket.on('sendDiceNum', (pos, id) => {
+    let newPosition = check_cord(pos);
+
+    if (newPosition) {
+      io.emit('newPos', newPosition, id)
+    } else {
+      io.emit('newPos', pos, id)
+    }
+
+    // Player
+    //   .findByPk(id)
+    //   .then(player => {
+    //     let position = player.coordinate + diceNumber;
+
+    //     newPosition = check_cord(position);
+    //     socket.emit('newPosition', newPosition);
+    //     return Player
+    //       .update({
+    //         coordinate: newPosition.newPos
+    //       }, {
+    //         where: {
+    //           id
+    //         },
+    //         returning: true
+    //       })
+    //       .then(player => {
+    //         console.log(player);
+    //       })
+    //       .catch(err => {
+    //         socket.emit('error', err.msg)
+    //       })
+    //   })
   })
 
   socket.on('winner', payload => {
