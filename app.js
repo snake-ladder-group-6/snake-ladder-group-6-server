@@ -2,13 +2,13 @@ const express = require('express');
 const app = express();
 const port = process.env.PORT || 3000;
 const server = require('http').createServer(app);
-// const cors = require('cors');
 const router = require('./routers/index');
 const io = require('socket.io')(server);
 const { check_cord } = require('./helpers/checkPos');
 const { generateToken, verifyToken } = require('./helpers/jwt');
 const { compareHash } = require('./helpers/bcrypt');
 const { Player, Room, PlayerRoom } = require('./models');
+const cors = require('cors')
 
 app.use(cors())
 app.use(express.json())
