@@ -15,14 +15,16 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(router)
 
+let users = [];
+
 io.on('connection', (socket) => {
-  console.log('a new player connected');
 
   socket.on('disconnect', () => {
     console.log('a player just leave the game');
   })
 
   socket.on('register', payload => {
+    console.log('register');
     const { username, password } = payload;
 
     Player
@@ -33,8 +35,8 @@ io.on('connection', (socket) => {
       .then(player => {
         console.log('a new player just sign up');
       })
-      .else(err => {
-        io.to(player.id).emit('error', err.msg);
+      .catch(err => {
+        console.log(err);
       })
   })
  
@@ -59,16 +61,17 @@ io.on('connection', (socket) => {
               access_token,
               username
             }
-            socket.emit('token', payload); 
+            users.push(username)
+            io.emit('token', users); 
           } else {
-            io.to(player.id).emit('error', 'invalid username/password');
+            console.log('invalid email/password');
           }
         } else {
-          io.to(player.id).emit('error', 'invalid username/password');
+          console.log('invalid email/password');
         }
       })
       .catch(err => {
-        io.to(player.id).emit('error', err.msg);
+        console.log(err);
       })
   })
 
