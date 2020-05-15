@@ -8,13 +8,14 @@ const io = require('socket.io')(server);
 const { check_cord } = require('./helpers/checkPos');
 const { generateToken, verifyToken } = require('./helpers/jwt');
 const { compareHash } = require('./helpers/bcrypt');
+const { Player, Room, PlayerRoom } = require('./models');
 
 app.use(cors())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(router)
 
-io.on('connection', (socket)=> {
+io.on('connection', (socket) => {
   console.log('a new player connected');
 
   socket.on('disconnect', () => {
@@ -68,17 +69,38 @@ io.on('connection', (socket)=> {
   })
 
   socket.on('add-room', payload => {
-    Rooms.create({
+    const token = payload.token;
+    let decode = verifyToken(token);
+    const { id } = decode;
+    let RoomId;
+    let roomName;
+    Room.create({
       name: payload.roomName
     })
       .then(room => {
-        socket.join(room.id, (err) => {
+        RoomId = room.id;
+        roomName =  room.name;
+        return PlayerRoom
+          .create({
+            PlayerId: id,
+            RoomId
+          })
+      })
+      .then(() => {
+        socket.join(RoomId, (err) => {
           if(err) {
             console.log(err)
           } else {
+            let room = {
+              id: RoomId,
+              name: roomName
+            }
             io.emit('roomCreated', room)
           }
         })
+      })
+      .catch(err => {
+        console.log(err);
       })
   })
 
@@ -107,7 +129,7 @@ io.on('connection', (socket)=> {
                 PlayerId:id, //currentPlayerId from AUTH
                 RoomId:payload.RoomId
               }
-              UserRoom.create(data)
+              PlayerRoom.create(data)
                 .then((player) => {
                   socket.join(payload.id, () => {
                   io.to(payload.id).emit('someoneJoined', payload)
@@ -136,9 +158,13 @@ io.on('connection', (socket)=> {
   })
 
   socket.on('showAllRoom', () => {
-    Rooms.findAll()
-    .then(result => {
-      socket.emit('rooms', result)
+    Rooms.findAll({
+      where: {
+        status: false
+      }
+    })
+    .then(results => {
+      socket.emit('rooms', results)
     })
   })
 
