@@ -82,10 +82,57 @@ io.on('connection', (socket)=> {
       })
   })
 
-  socket.on('join-room', token => {
-    socket.join(payload.id, () => {
-      io.to(payload.id).emit('someoneJoined', payload)
+  socket.on('join-room', (payload) => {
+    if (payload.access_token) {
+      let decode = verifyToken(payload.access_token);
+      const { id } = decode;
+      Room.findOne({ where: {id: payload.RoomId}})
+    .then((result) => {
+      if(result) {
+        if(!result.status) {
+          let newStats = result.current_player + 1
+          Room.update(
+            {
+              current_player: newStats
+            },
+            {   
+              where : {
+                id: payload.RoomId
+              },
+              returning: true,
+              individualHooks: true
+          })
+            .then(() => {
+              let data = {
+                PlayerId:id, //currentPlayerId from AUTH
+                RoomId:payload.RoomId
+              }
+              UserRoom.create(data)
+                .then((player) => {
+                  socket.join(payload.id, () => {
+                  io.to(payload.id).emit('someoneJoined', payload)
+                  })
+                })
+            })
+        } else { // io io
+          throw {
+            msg : 'Room is FULL',
+            code : 400
+          }
+        }
+      } else {
+        throw {
+          msg : 'Room Not Found',
+          code : 404
+        }
+      }
     })
+    .catch(err => {
+      console.log(err);
+    })
+    } else {
+    // nanti eror
+    }
   })
 
   socket.on('showAllRoom', () => {
