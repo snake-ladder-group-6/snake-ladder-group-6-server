@@ -19,17 +19,17 @@ function check_cord(cord) {
       {type:'ladder', dest:71, arival:92},
       {type:'ladder', dest:83, arival:95},
     ]
+
     for (let i in obj) {
       if (cord == obj[i].dest) {
         if (obj[i].type == 'snake') {
-          return {type: obj[i].type, stepCount: (obj[i].dest - obj[i].arival)}
-        } else {
-          return {type: obj[i].type, stepCount: (obj[i].arival - obj[i].dest)}
+          return obj[i].arival
+        } else if (obj[i].type == 'ladder') {
+          return obj[i].arival
         }
-      } else {
-        return false
-      }
+      } 
     }
+    return false
   }
   
   module.exports = {check_cord}
