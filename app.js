@@ -55,7 +55,11 @@ io.on('connection', (socket) => {
               id: player.id,
               username: player.username
             })
-            socket.emit('token', access_token); 
+            let payload = {
+              access_token,
+              username
+            }
+            socket.emit('token', payload); 
           } else {
             io.to(player.id).emit('error', 'invalid username/password');
           }
