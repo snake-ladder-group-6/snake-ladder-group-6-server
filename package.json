@@ -1,6 +1,9 @@
 {
   "name": "snake-ladder-group-6-server",
   "version": "1.0.0",
+  "engines": {
+    "node": "12.11.1"
+  }, 
   "description": "",
   "main": "app.js",
   "scripts": {
